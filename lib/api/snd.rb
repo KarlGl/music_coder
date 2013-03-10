@@ -6,10 +6,15 @@ class Snd < Api
     super
   end
   
+  # return its TonePart.
   def tonepart i=0
-    @snd.tonepart i
+    child = @snd.tonepart i
+    raise "This Snd has no tone at index #{i}. " +
+      "It has #{count} tones." if child.nil?
+    child
   end  
     
+  # return its TonePart at j and thats Tone at i.
   def tone i=0, j=0
     @snd.tonepart(j).tone(i)
   end
@@ -18,26 +23,27 @@ class Snd < Api
     @snd.frames=val
     self
   end
-  def t i=0
-    child = @snd.toneparts[i]
-    raise "This Snd has no tone at index #{i}. " +
-      "It has #{count} tones." if child.nil?
-    child
-  end
   # number of tones
   def count
-    snd.toneparts.count
+    toneseq.toneparts.count
   end
+  #ensure all tones fade out to 0 as the final volume. 
+  #note: re-run after changing amp.
   def fade
-    snd.fade
+    toneseq.fade
   end
-  attr_accessor :snd
+  #return my ToneSeq
+  def toneseq
+    @snd
+  end
   private   
   # Add hits, sounds or other dists to me.
   def add_single toadd
     case toadd
     when Snd
-      @snd = toadd.instance_variable_get(:@snd)
+      @snd = toadd.toneseq
+    when ToneSeq
+      @snd = toadd
     else
       return false
     end
@@ -46,17 +52,20 @@ class Snd < Api
   
 end
 
-class Fixnum
+class Integer
+  #same as Float#Snd.
   def Snd
     a = Snd.new
-    a.t.freq = self
+    a.tonepart.freq = self
     a
   end
 end
 class Float
+  #return a new Snd with its frequency set to the value. 
+  #e.g. 500.4.Snd
   def Snd
     a = Snd.new
-    a.t.freq = self
+    a.tonepart.freq = self
     a
   end
 end

@@ -22,10 +22,10 @@ def saturation= val
   saturations.final = val
 end
 
-# return WaveData of data for a single wave cycle
-# len:: length in frames
-# amp:: amplitude or volume (loudness), 0 to 1. 0 is silent
-# wave_into:: how much of the final wave data is used this time. range: 0 to 1.
+#return WaveData of data for a single wave cycle
+#len:: length in frames
+#amp:: amplitude or volume (loudness), 0 to 1. 0 is silent
+#wave_into:: how much of the final wave data is used this time. range: 0 to 1.
 # 
 def out(freq, amp = 1, wave_into = 1)
   final=WaveData.new

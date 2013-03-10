@@ -6,9 +6,10 @@ class Logger
   #2 condensed stats and updative info from a process (loading bars)
   #3 warnings
   #4 memory updates and debug info
+  #5 raw data
   attr_accessor :level
   def initialize
-    self.level = 4
+    self.level = 5
   end
   
   #output something if our level says it's okay

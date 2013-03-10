@@ -99,7 +99,7 @@ class Array
   end
 end
 class Integer
-  #a shortcut. e.g. 4.eqly_spaced gives you HitSq.new.eqly_spaced(4)
+  #a shortcut. e.g. 4.eqly_spaced gives you HitSq#eqly_spaced(4)
   def eqly_spaced(chance = 1, ignore_first=0, ignore_last=0)
     h=HitSq.new
     possible_hits=self

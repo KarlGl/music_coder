@@ -6,9 +6,16 @@ class ToneSeq
     @toneparts = []
     make(1)
   end
+  #return the total frames of all toneparts combined.
+  def frames
+    total=0
+    toneparts.each {|tp| total+=tp.tone.frames}
+    total
+  end
   def tonepart i=0
     @toneparts[i]
   end
+  #set the frames of each tonepart to val.
   def frames= val
     @toneparts.each {|tp| tp.frames = val}
   end
@@ -19,23 +26,28 @@ class ToneSeq
       }
     self
   end
+  #set length of all toneparts to equally add to set when combined.
   def len= set
     @toneparts.each {|tp|
       tp.max_frames = set / toneparts.count
       tp.frames = set / toneparts.count
     }
   end
-  # add num TonePart to self, with it's max allowable frames as len.
-  def make(num,len=0)
+  #add num TonePart to self, with it's max allowable frames as #frames.
+  def make(num)
   #  puts "ToneSeq: making #{num} parts in tone"
-    num.times { self.toneparts.push TonePart.new((len.to_f/num).round) }
+    num.times { self.toneparts.push TonePart.new }
+    self.len= (frames.to_f).round
   end
 
+  #compile all data on all #toneparts, then write it to file(s)
   def render(parent_hit_index=nil)
-    files=FileList.new
+    data = WaveData.new
     toneparts.each do |tp|
-      files.write tp.out(parent_hit_index).out
+      data + tp.out(parent_hit_index).out
     end
+    files= FileList.new
+    files.write data
     files
   end
 

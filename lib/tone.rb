@@ -57,14 +57,15 @@ def chord(note, name, element)
   out
 end
 
-# output the WaveData for a full tone (chirp). All sound created flows into this atm.
-# freq_exp:: default 0. 0 means linear. higher means it reachs the frequency at the end of it's range later.
+#output the WaveData for a full tone (chirp). All sound created flows into this atm.
+#freq_exp:: default 0. 0 means linear. higher means it reachs the frequency at the end of it's range later.
 def out
   # puts "out amp: #{amp.start}"
   buffer_len = frames
   inc_x = 0.0
   data = WaveData.new
   lfreq = freq.start
+  log "tone starting with freq #{lfreq}", 4
   lamp = amp.start
   wave_exp = wave.detail.exp
   freq_exp = freq.exp

@@ -1,11 +1,11 @@
-# two tones that can be faded between
+# one tone or two tones that can be morphed between eachother
 class TonePart
 #Fader
 attr_accessor :tones
 attr_accessor :max_frames
 attr_accessor :tone_single
 attr_accessor :tone_count
-def initialize(m,t1=Tone.new,t2=Tone.new)
+def initialize(m=0,t1=Tone.new,t2=Tone.new)
   @tones = Fader.new(t1,t2,0)
   @max_frames = m
   self.frames = m
@@ -18,37 +18,52 @@ def tone i=0
   i==1 ? @tones.final : @tones.start
 end
 
+# set #max_frames and frames on each Tone if 0.
 def max_frames= m
   @max_frames = m
   # set if none
-  self.frames = m if @tones.start.frames == 0 && @tones.final.frames == 0
+  is_frames_set = true
+  is_frames_set = false if tone_count == 1 && tone.frames == 0
+  is_frames_set = false if tone_count > 1 && tone(0).frames == 0 && tone(1).frames == 0
+  self.frames = m if !is_frames_set
 end
 
 def frames= val
-  @tones.start.frames = val
-  @tones.final.frames = val
+  tone(0).frames = val
+  tone(1).frames = val
 end
 
 # get main freq
 def freq
-  tones.start.freq.start
+  tone.freq.start
 end
 #get main note
 def note
-  tones.start.note
+  tone.note
 end
 
+#set freq of start and final to val
 def freq= val
-  @tones.start.freq.start = val
-  @tones.final.freq.start = val
+  tone(0).freq.start = val
+  tone(1).freq.start = val
 end
 
+#set freq of start and final to Note.freq
+#val:: the note to call freq on
+def note= val
+  tone(0).freq.start = val.freq
+  tone(1).freq.start = val.freq
+end
+
+# multiply all amplitudes (Tone.amp) by factor.
 def amp_mult(factor)
-  tones.start.amp.start *= factor
+  tone(0).amp.start *= factor
   #puts "amp: #{tone.tones.start.amp.start}"
-  tones.start.amp.final *= factor
-  tones.final.amp.start *= factor
-  tones.final.amp.final *= factor
+  tone(0).amp.final *= factor
+  if tone_count > 1
+    tone(1).amp.start *= factor
+    tone(1).amp.final *= factor
+  end
 end
 
 

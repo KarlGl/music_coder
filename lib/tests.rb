@@ -1,4 +1,4 @@
-require "./app.rb"
+load File.dirname(__FILE__) + "/music_coder.rb"
 require "test/unit"
 
 class TestHitSq < Test::Unit::TestCase
@@ -122,7 +122,7 @@ class TestDists < Test::Unit::TestCase
   
   def test_snddefs
     s=20.Snd
-    assert_equal(20, s.t.tones.start.freq.start)
+    assert_equal(20, s.tone.freq.start)
   end
   
   def test_def_hits
@@ -134,35 +134,62 @@ class TestDists < Test::Unit::TestCase
   def test_def_tone
     d=10.Dist
     d.make_sound
-    assert_equal(10, d.snd.t.max_frames)
+    assert_equal(10, d.snd.tonepart.max_frames)
   end
   
   def test_snd_f_def
     s=20.0.Snd
-    assert_equal(20, s.t.freq)
+    assert_equal(20, s.tonepart.freq)
   end
   
   def test_snd_len_dist
     snd = 155.Snd
     snd.length= beat
-    assert_equal(beat, snd.t.tones.start.frames)
-    assert_equal(0, snd.t.max_frames)
+    assert_equal(beat, snd.tone.frames)
+    assert_equal(0, snd.tonepart.max_frames)
     snd.length= 0
     snd.length= beat
     @d3<<snd
-    assert_equal(bar, snd.t.max_frames)
-    assert_equal(beat, snd.t.tones.start.frames) # kept, not 0
+    assert_equal(bar, snd.tonepart.max_frames)
+    assert_equal(beat, snd.tone.frames) # kept, not 0
   end
   def test_snd_len_def
     snd = 155.Snd
     @d3<<snd
-    assert_equal(bar, snd.t.tones.start.frames) # if 0 uses full
+    assert_equal(bar, snd.tone.frames) # if 0 uses full
   end
   def test_notes
     snd = Note.new(0,5).Snd
-    assert_equal(440, snd.t.freq)
-    assert_equal(Note.new(0,5).freq, snd.t.note.freq)
+    assert_equal(440, snd.tonepart.freq)
+    assert_equal(Note.new(0,5).freq, snd.tonepart.note.freq)
     snd = Note.new("c#",5)
     assert_equal(4, snd.note)
+  end
+  def test_toneseq_pushing
+    @d3 << Note.new(0,5).Snd
+    @d3.snd.length= beat
+    assert_equal(beat, @d3.snd.tone.frames)
+    @d3.make(1)
+    assert_equal(2, @d3.snd.toneseq.toneparts.count)
+    assert_equal(beat/2, @d3.snd.tone.frames) # made 2, frames should be half
+    @d3.make(2)
+    assert_equal(4, @d3.snd.toneseq.toneparts.count)
+    assert_equal(beat/4, @d3.snd.tone.frames) # made 4, frames should be 1/4
+  end
+  def test_scale
+    notes = scale_notes("mixolydian")
+    assert_equal(7, notes.count)
+    assert_equal([0,2,4,5,7,9,10], notes)
+    
+    snd = Snd.new
+    snd.length= beat
+    @d3<< snd
+    @d3.make(6)
+    7.times do |i|
+      newn = Note.new(notes[i], 4)
+      @d3.snd.tonepart(i).note= newn
+    end
+    assert_equal(392, @d3.snd.tonepart(6).freq.round)
+    assert_equal(277, @d3.snd.tonepart(2).freq.round)
   end
 end

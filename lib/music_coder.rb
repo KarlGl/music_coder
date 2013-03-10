@@ -1,5 +1,9 @@
-
-# extend all objects
+#These are the main methods in the API to be called from anywhere.
+#Other important API classes to read are:
+#* Dist
+#* Snd
+#* Note
+#* HitSq
 class Object
 # initialize all instance vars from a Hash if they are specified in args.
 def init_hash(args)
@@ -13,6 +17,7 @@ end
 def deep_copy
   Marshal.load(Marshal.dump(self))
 end
+#:nodoc: test if attributes are equal
 def vars_eql?(other,vars=nil)
   vars ||= instance_variables
   vars.each do |var|
@@ -76,25 +81,25 @@ require 'yaml'
 
 # Reload all files in case of update.
 def self.load_all
-  load 'tone.rb'
-  load 'logger.rb'
-  load 'fader.rb'
-  load 'composer.rb'
-  load 'math_utils.rb'
-  load 'wave.rb'
-  load 'wave_data.rb'
-  load 'mixer.rb'
-  load 'audio_output.rb'
-  load 'tone_part.rb'
-  load 'tone_seq.rb'
-  load 'audio.rb'
-  load 'file_list.rb'
-  load 'snd_dist.rb'
-  load 'api/note.rb'
-  load 'api/api.rb'
-  load 'api/dist.rb'
-  load 'api/hit_sq.rb'
-  load 'api/snd.rb'
+  load File.dirname(__FILE__) + '/tone.rb'
+  load File.dirname(__FILE__) + '/logger.rb'
+  load File.dirname(__FILE__) + '/fader.rb'
+  load File.dirname(__FILE__) + '/composer.rb'
+  load File.dirname(__FILE__) + '/math_utils.rb'
+  load File.dirname(__FILE__) + '/wave.rb'
+  load File.dirname(__FILE__) + '/wave_data.rb'
+  load File.dirname(__FILE__) + '/mixer.rb'
+  load File.dirname(__FILE__) + '/audio_output.rb'
+  load File.dirname(__FILE__) + '/tone_part.rb'
+  load File.dirname(__FILE__) + '/tone_seq.rb'
+  load File.dirname(__FILE__) + '/audio.rb'
+  load File.dirname(__FILE__) + '/file_list.rb'
+  load File.dirname(__FILE__) + '/snd_dist.rb'
+  load File.dirname(__FILE__) + '/api/note.rb'
+  load File.dirname(__FILE__) + '/api/api.rb'
+  load File.dirname(__FILE__) + '/api/dist.rb'
+  load File.dirname(__FILE__) + '/api/hit_sq.rb'
+  load File.dirname(__FILE__) + '/api/snd.rb'
 end
 
 def self.clear_dir dir_path

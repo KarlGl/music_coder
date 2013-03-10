@@ -49,62 +49,8 @@ def self.scales
   all
 end
 
-#outputs the midi notes of the chord in an array
-#note:: midi value of root note in chord. range: 0 to 11
-def self.chord_notes(note, name = "dim7")
-  set=[]
-  out=[]
-  all=chords
-  # handle all selected
-  if name=="all"
-    all.keys.each { |val| out.push chord_notes(note, val) }
-  else #normal
-    set = all[name]
-    raise "Unknown scale name" if set.nil?
-    out = [note] # always root
-    set.each do |val|
-      out.push note+val
-    end
-  end
-
-  out
-end
-
-#outputs the scale name and midi notes in hash
-#note:: midi value of root note. range: 0 to 11
-def self.scale_notes(note, name = "major")
-  set=[]
-  out=[]
-  all=scales
-  # handle all selected
-  if name=="all"
-    all.keys.each { |val| out.push scale_notes(note, val) }
-  else #normal
-    set = all[name]
-    raise "Unknown scale name" if set.nil?
-    out = [note] # always root
-    set.each do |val|
-      out.push note+ val
-    end
-  end
-  out
-end
-
-# return set of chords that fit in the scale 
-def self.matching_chords(scale = "major", offset = 0)
-  all = chords
-  scale_n = [0] + scales[scale]
-  out = []
-  all.each do |chord|
-    name = chord[0]
-    notes=get_notes all[name], offset # lookup chord with name
-    out.push name if (scale_n&notes).sort==notes.sort # if all notes are in scale
-  end
-  out
-end
-
-# return an array of notes from a array of notes with an offset, adding the root note at the start.
-# e.g. ([1,10,2],2) outputs [2,3,0,4] (root note is 2, 10 + 2 becomes 0, 1 + 2 is 3 etc)
+#return an array of notes from a array of notes with an offset, adding the root note at the start.
+#e.g. ([1,10,2],2) outputs [2,3,0,4] (root note is 2, 10 + 2 becomes 0, 1 + 2 is 3 etc)
 def self.get_notes(notes_ar, offset = 0)
   notes = [0] + notes_ar
   #offset
@@ -123,6 +69,19 @@ end
 def self.beat(beats)
   bps = (self.bpm/60.0)
   return (beats) * (1.0/bps) * self.samplerate.to_f
+end
+
+#return set of chord names of chords that fit in the scale, offset upward by offset notes.
+def self.matching_chords(scale = "major", offset = 0)
+  all = Composer.chords
+  scale_n = [0] + Composer.scales[scale] # not offset at all
+  out = []
+  all.each do |chord|
+    name = chord[0]
+    notes=Composer.get_notes all[name], offset # lookup chord with name and offset
+    out.push name if (scale_n&notes).sort==notes.sort # if all notes are in scale
+  end
+  out
 end
 
 #convert a note as a string to midi value

@@ -51,7 +51,7 @@ class Note
     vars_eql? other
   end
 
-  # create a sound based off this note.
+  #return a new Snd with its frequency set to this note.
   def Snd
     s=freq.Snd
     s
