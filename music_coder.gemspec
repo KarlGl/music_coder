@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|  
   s.files       = Dir['lib/**/*.rb']
   s.name        = 'music_coder'
-  s.version     = '0.7.0'
+  s.version     = '0.7.1'
   s.summary     = "An application to programmatically create music through code."
   s.require_paths = ["lib"]
   s.add_dependency('sndfile', '>=0.2.0')
