@@ -23,6 +23,9 @@ class Snd < Api
     @snd.frames=val
     self
   end
+  # get length
+  def length
+    @snd.frames end
   # number of tones
   def count
     toneseq.toneparts.count

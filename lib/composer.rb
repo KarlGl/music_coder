@@ -6,6 +6,8 @@ class << self
   attr_accessor :bpm
   #fames per second
   attr_accessor :samplerate
+  #the current scale to be used by many commands that require it. String. def: "major".
+  attr_accessor :scale
 end
 def self.chords
   all = Hash.new
@@ -72,7 +74,7 @@ def self.beat(beats)
 end
 
 #return set of chord names of chords that fit in the scale, offset upward by offset notes.
-def self.matching_chords(scale = "major", offset = 0)
+def self.matching_chords(offset = 0)
   all = Composer.chords
   scale_n = [0] + Composer.scales[scale] # not offset at all
   out = []
@@ -119,5 +121,5 @@ def self.note_m(note)
   end
   val
 end
-
+Composer.scale = "major"
 end

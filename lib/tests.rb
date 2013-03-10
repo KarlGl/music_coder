@@ -1,6 +1,33 @@
 load File.dirname(__FILE__) + "/music_coder.rb"
 require "test/unit"
 
+class TestNotes < Test::Unit::TestCase
+  def test_ops
+    n=Note.new(1,5) + (-3)
+    assert_equal(true, Note.new(10,4).is_eql(n))
+    assert_equal(true, Note.new(3,5).is_eql(n+5))
+  end
+  def test_inc
+    Composer.scale = "major"
+    n=Note.new(0,5)
+    assert_equal([0, 2, 4, 5, 7, 9, 11], scale_notes)
+    b=n.inc 2
+    assert_equal 4, b.note
+    b=n.inc 7
+    assert_equal 0, b.note
+    assert_equal 6, b.octave
+    b=n.inc 0
+    assert_equal 0, b.note
+    assert_equal 5, b.octave
+    b=n.inc -2
+    assert_equal 9, b.note
+    assert_equal 4, b.octave
+    b=n.inc -9
+    assert_equal 9, b.note
+    assert_equal 3, b.octave
+  end
+end
+
 class TestHitSq < Test::Unit::TestCase
   def setup
     @h=[0.2,0.3,0.4].HitSq
@@ -48,6 +75,20 @@ class TestDists < Test::Unit::TestCase
     @d3.length = bar
   end
  
+  def test_dist_child_getters
+     @d << (8.Dist << 0.5 << 300.Snd)
+     @d.last_born.snd.length= 10
+     assert_equal([0.5], @d.last_born.hits.hits)
+     assert_equal(1, @d.last_born.snd.count)
+     # persist?
+     @d.last_born << 0.6
+     assert_equal([0.5,0.6], @d.last_born.hits.hits)
+  end
+  def test_dist_default_hit_0
+    dist = 50_000.Dist
+    assert_equal(1, dist.dist.hits.count)
+    assert_equal(0, dist.hits.count)
+  end
   def test_add_dist
     assert_equal(0, @d.branches)
     @d<<@d2
@@ -131,9 +172,9 @@ class TestDists < Test::Unit::TestCase
     assert_equal([0.0], d.dist.hits) #default
   end
   
-  def test_def_tone
+  def test_def_tone_len
     d=10.Dist
-    d.make_sound
+    d<< Snd.new
     assert_equal(10, d.snd.tonepart.max_frames)
   end
   
@@ -177,7 +218,8 @@ class TestDists < Test::Unit::TestCase
     assert_equal(beat/4, @d3.snd.tone.frames) # made 4, frames should be 1/4
   end
   def test_scale
-    notes = scale_notes("mixolydian")
+    Composer.scale = "mixolydian"
+    notes = scale_notes
     assert_equal(7, notes.count)
     assert_equal([0,2,4,5,7,9,10], notes)
     

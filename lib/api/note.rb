@@ -14,8 +14,40 @@ class Note
     @octave = octave
   end
   
-  # returns a value up n semitones. (changes octave where necessary)
+  #increment by n notes in the scale set in Composer#scale
+  def inc(n)
+    notes = scale_notes
+    ind = note_index(self.note)
+    semis = 0
+    n.times do
+      ind_old = ind
+      ind += 1
+      if ind >= notes.count
+        diff = 12 - notes[ind_old]
+        ind = 0
+      else
+        diff = notes[ind] - notes[ind_old]
+      end
+      semis += diff
+    end
+    (-1*n).times do
+      ind_old = ind
+      ind -= 1
+      if ind < 0
+        ind=notes.count-1 
+        diff = notes[ind] - 12
+      else
+        diff = notes[ind] - notes[ind_old]
+      end
+      semis += diff
+    end
+    self+semis
+  end
+  
+  #returns a value up some semitones. (changes octave where necessary)
+  #n:: number of semitones, can be pos or neg Integer.
   def +(n = 1)
+    return self-(n*-1) if n < 0
     i=0
     out = deep_copy
     while i < n do

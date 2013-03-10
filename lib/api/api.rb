@@ -103,8 +103,8 @@ def clear
   App.clear_ready
 end
 
-#set the beats per minute of all following audio. now helper methods like #beat will be usefull.
-def bpm_set val
+#set the beats per minute of all following commands. now helper methods like #beat will be usefull.
+def set_bpm val
   Composer.bpm = val
 end
 #return the current beats per minute.
@@ -150,20 +150,21 @@ def chord_notes(note, name = "dim7")
   out
 end
 
-#return array of notes in the scale
+#return array of notes in the Composer#scale
 #note:: midi value of root note. range: 0 to 11
-#name:: anything from Composer.scales
-def scale_notes(name = "major", note=0)
+#name:: anything from Composer.scales.
+def scale_notes(note=0,is_all=false)
   set=[]
   out=[]
   all=Composer.scales
   # handle all selected
-  if name=="all"
+  if is_all
     all.keys.each { |val| out.push scale_notes(val,note) }
   else #normal
-    set = all[name]
+    set = all[Composer.scale]
     raise "Unknown scale name" if set.nil?
     out = [note] # always root
+    # add set to out
     set.each do |val|
       out.push note+ val
     end
@@ -171,21 +172,46 @@ def scale_notes(name = "major", note=0)
   out
 end
 
-#return an Array of String of chords that could be the i number chord for notes in the given scale.
-def scale_chord(i=0, scale = "major")
-  notes = Composer.get_notes(Composer.scales[scale])
-  Composer.matching_chords(scale, notes[i])
+#return an Array of String of chords that could be the i number chord for notes in the Composer#scale.
+#scale:: anything from Composer.scales.
+def scale_chord(i=0)
+  notes = scale_notes
+  raise "#{i} is out of range for that scale, it only has #{notes.count} notes." if notes[i].nil?
+  Composer.matching_chords(notes[i])
+end
+
+#random scale
+def rand_scale
+  Composer.scales.keys.sample # allow for random.
 end
 
 #return an Array of chords (each chord is an Array of Integer notes) 
-#that fit each note consecutively in the given scale. 
+#that fit each note consecutively in Composer#scale. 
 #The chord is randomly sampled from those availiable.
-def get_chords(scale = "major")
+def get_chords
   out = []
-  notes = Composer.get_notes Composer.scales[scale]
+  notes = scale_notes
   notes.count.times do |i|
-    chord = scale_chord(i,"mixolydian").sample #rand
-    out << chord_notes(notes[i], chord)
+    begin
+        chord = scale_chord(i).sample #rand
+      if chord == []
+        out << [notes[i]]
+      else
+        out << chord_notes(notes[i], chord)
+      end
+
+    rescue Exception
+      out << [notes[i]]
+    end
   end
   out
+end
+
+#returns how far the given note (Integer) is into the scale.
+def note_index(note)
+   scale_notes.index(note)
+end
+#sets Composer#scale
+def set_scale sc
+   Composer.scale = sc
 end

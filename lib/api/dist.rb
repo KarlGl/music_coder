@@ -2,6 +2,7 @@
 # of varying lengths, and rate of morphs, played without gaps.
 class Dist < Api 
   attr_accessor :dist
+  # will have a defult hit at 0 if it has a sound and no hits have been made.
   def initialize    
     super
     @dist=SndDist.new
@@ -36,7 +37,7 @@ class Dist < Api
     persist_hits
     self
   end
-  # get a child
+  # get a Dist child
   def [] i
     child=@dist.get_children[i]
     raise "This Dist has no child at index #{i}. " +
@@ -46,7 +47,23 @@ class Dist < Api
     d.make_hits
     d
   end
-  # count children
+  # get last child
+  def last_born
+    child=@dist.get_children.last
+    d=Dist.new
+    d.dist=child
+    d.make_hits
+    d
+  end
+  # get first child
+  def first_born
+    child=@dist.get_children.first
+    d=Dist.new
+    d.dist=child
+    d.make_hits
+    d
+  end
+  # count children (Dists only)
   def branches
     @dist.get_children.count
   end 
@@ -63,11 +80,25 @@ class Dist < Api
     snd<< new
     snd
   end
-  # make a new sound with len
-  def make_sound
+  # getter for Snd. Will persist any changes you make to it.
+  def snd i=0
     snd=Snd.new
-    snd.toneseq.len = @dist.len
-    self<<snd
+    snd.add_parent self
+    new=@dist.tss[i]
+    raise "Dist has no sound at index #{i}. It has #{sounds} sounds." if new.nil?
+    snd<< new
+    snd
+  end
+  # delete all Snd attached to this Dist
+  def clear_snd
+    @dist.tss = []
+    self
+  end
+  # run on all sounds
+  def snd_each
+    sounds.times {|i|
+      yield(snd i)
+    }
     self
   end
   # count sounds

@@ -21,6 +21,7 @@ def initialize(args = nil)
   init_hash(args)
 end
 
+# set saturation for both start and end
 def saturation= val
   wave.saturation= val
 end
