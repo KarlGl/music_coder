@@ -5,7 +5,7 @@ class Wave
 # Fader.final is at the end. nil means same as wave start
 attr_accessor :detail
 #saturation effect (a random fluctuation on each data point to the cycle).
-#degree:: The ammount of saturation. Higher is more, 0 is none. range: 0 to 1
+#the ammount of saturation is higher is more, 0 is none. range: 0 to 1.
 attr_accessor :saturations
 # hack to dramatically speed it up when on.
 attr_accessor :cache_wave, :old_wave

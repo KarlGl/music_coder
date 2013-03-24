@@ -6,6 +6,25 @@ class Snd < Api
     super
   end
   
+  #assumes one tone only
+  def freq= val
+    tone.set_freq val
+  end
+  
+  #freq of first tone only
+  def freq
+    tone.freq.start
+  end
+  
+  def amp= val
+    toneseq.do_all {|tp| 
+      tp.do_all {|tone| 
+        tone.amp.start = val
+        tone.amp.final = 0.0
+        }
+      }
+  end
+  
   # return its TonePart.
   def tonepart i=0
     child = @snd.tonepart i

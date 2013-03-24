@@ -5,6 +5,16 @@ class HitSq < Api
     @hits=[]    
     super
   end
+  def delete_arr to_del
+    to_del.each {|di| self.hits.delete_at di }
+    persist
+  end
+  # multiply all hits by mult
+  def * mult
+    hn = []
+    self.hits.collect! {|hit| hit = hit*mult}
+    persist
+  end
   private   
   # delete value
   def del_single todel
@@ -38,6 +48,67 @@ class HitSq < Api
     end
   end
   public
+  
+  #chance:: how likely it is a hit will be DELETED
+  def delete_random chance = 0.5
+    to_del = []
+    hits.each do |h|
+      if rand < chance
+        to_del << h
+      end
+    end
+    to_del.each {|d| self.hits.delete d }
+    persist
+    self
+  end
+  
+  def trim_start portion=0.25
+    save = []
+    hits.count.times do |i|
+      upto = i.to_f / hits.count
+      if upto >= portion
+        save << hits[i]
+      end
+    end
+    self.hits = save
+    persist
+  end
+  
+  def trim_end portion=0.25
+    save = []
+    hits.count.times do |i|
+      upto = i.to_f / hits.count
+      if upto < 1.0 - portion
+        save << hits[i]
+      end
+    end
+    self.hits = save
+    persist
+  end
+  
+  def trim_both portion=0.25
+    save = []
+    hits.count.times do |i|
+      upto = i.to_f / hits.count
+      if upto < 1.0 - portion
+        save << hits[i]
+      end
+    end
+    
+    save2 = []
+    hits.count.times do |i|
+      upto = i.to_f / hits.count
+      if upto >= portion
+        save2 << hits[i]
+      end
+    end
+    self.hits = save&save2
+    persist
+  end
+  #(internal use only)
+  def persist
+    parent.dist.hits = hits if parent
+  end
   #Adds into #hits.
   #possible_hits:: number of hits that can occur. Must be int
   #chance:: chance a hit will be included. range: 0 to 1
@@ -53,6 +124,11 @@ class HitSq < Api
     end
     self
   end 
+  
+  def +(val)
+    move val
+    persist
+  end
   #return number of hits
   def count
     hits.count
@@ -61,7 +137,6 @@ class HitSq < Api
   def move(val=0.5)
     self.hits.collect! {|x| 
       z = (x+val)
-      z = (z*1000).round / 1000.0 # rounding
       x = z
     } # delay all
     self
@@ -97,6 +172,7 @@ class Array
     h<<self
     h
   end
+   
 end
 class Integer
   #a shortcut. e.g. 4.eqly_spaced gives you HitSq#eqly_spaced(4)

@@ -100,6 +100,7 @@ def self.load_all
   load File.dirname(__FILE__) + '/api/dist.rb'
   load File.dirname(__FILE__) + '/api/hit_sq.rb'
   load File.dirname(__FILE__) + '/api/snd.rb'
+  load File.dirname(__FILE__) + '/api/mapper.rb'
 end
 
 def self.clear_dir dir_path
@@ -108,8 +109,12 @@ end
 
 # clears objects ready to write to file.
 def self.clear_ready
-  App.clear_dir App::TMP_DIR
+  App.clear_rendered
   App.out.snddists = []
+end
+
+def self.clear_rendered
+  App.clear_dir App::TMP_DIR
   App.out.filelist = FileList.new
 end
 
@@ -188,6 +193,7 @@ App.checks = 0
 self.out = AudioOutput.new
 # make dirs
 require 'fileutils'
+App::OUT_SND_DIR = 'sound/' unless const_defined?(:OUT_SND_DIR)
 FileUtils.mkdir_p App.outpath+"sound/"
 FileUtils.mkdir_p App::TMP_DIR
 #

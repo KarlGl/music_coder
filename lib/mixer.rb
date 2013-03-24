@@ -1,5 +1,7 @@
 # mixes two tracks together or plays one or the other
 class Mixer
+  
+  
 # get volumes at a position
 def self.get(first, second, reduction)
   reduction2 = reduction > 1 ? 1 : reduction

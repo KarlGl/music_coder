@@ -1,6 +1,30 @@
 load File.dirname(__FILE__) + "/music_coder.rb"
 require "test/unit"
 
+class TestTones < Test::Unit::TestCase
+  
+  def test_setters
+    t= Tone.new
+    t.freq.start = (200)
+    assert_equal(200, t.freq.start)
+    t.freq.final = (20)
+    assert_equal(20, t.freq.final)
+    t.set_freq_final (30)
+    assert_equal(30, t.freq.final)
+    t.set_freq_final(20, false)
+    assert_equal(-180, t.freq.final)
+    assert_equal(-180, t.freq_final)
+    assert_equal(20, t.freq_final(false))
+    t.set_freq(250)
+    assert_equal(-230, t.freq_final)
+    t.set_freq(240)
+    assert_equal(-220, t.freq_final)
+    t.set_freq_final (0)
+    assert_equal(0, t.freq.final)
+    t.set_freq(10)
+    assert_equal(0, t.freq_final)
+  end
+end
 class TestNotes < Test::Unit::TestCase
   def test_ops
     n=Note.new(1,5) + (-3)
@@ -58,6 +82,24 @@ class TestHitSq < Test::Unit::TestCase
     assert_equal(1, @h2.count)
     # Not chaged
     assert_equal(4, @h.count)
+  end
+  
+  def test_hits_trim
+    h=HitSq.new
+    h.eqly_spaced(8)
+    h.trim_end(0.25)
+    assert_equal(([0.0, 0.125, 0.25, 0.375, 0.5, 0.625]), h.hits)
+    h.trim_start(0.25)
+    assert_equal(([0.25, 0.375, 0.5, 0.625]), h.hits)
+    
+    
+    h.hits = []
+    h << 4.eqly_spaced
+    assert_equal([0.0,0.25,0.5,0.75], h.hits)
+    h.trim_start(0.25)
+    assert_equal([0.25,0.5,0.75], h.hits)
+    h.trim_end(0.34)
+    assert_equal([0.25,0.5], h.hits)
   end
   
   def test_hits_move

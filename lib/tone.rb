@@ -21,6 +21,88 @@ def initialize(args = nil)
   init_hash(args)
 end
 
+# set frequency #freq#start
+def set_freq (val)
+  dif = freq.start - val
+  freq.start = val
+  set_freq_final freq_final(false) + dif, false if freq_final !=0
+end
+
+def freq_final(is_relative=true)
+  return is_relative ? freq.final : freq.start + freq.final
+end
+
+# random amp.
+def rand_amp_both(max = 0.8, min = 0.0025)
+  upper = max - min
+  
+  val = rand * upper
+  self.amp.start = min + val
+  val = rand * val # can't be more
+  self.set_amp_final (min + val), false
+  self.amp.rand_exp
+end
+
+# random ammount of detail in a wave. weighted toward lower values weight times.
+def rand_detail_both(min = 3, max = 512, weight=2)
+  upper = max - min
+  
+  val = rand * upper
+  weight.times {val *= rand}
+  self.wave.detail.start= min + val
+  val = rand * upper
+  weight.times {val *= rand}
+  self.wave.detail.final= min + val
+#  puts "start detail #{val}"
+#  puts "final detail #{val}"
+  self.wave.detail.rand_exp
+end
+
+# random ammount of saturation, weighted toward lower values weight times.
+def rand_sat_both weight=2, max=1.0
+  sat = max
+  weight.times {sat *= rand}
+  self.saturations.start= sat
+  
+  sat = max
+  weight.times {sat *= rand}
+  self.saturations.final= sat
+  self.saturations.rand_exp
+#  puts "saturations.start #{saturations.start}"
+#  puts "saturations.final #{saturations.final}"
+#  puts "saturations.x #{saturations.exp}"
+end
+
+# random start frequency in range.
+def rand_freq(min = 12, max = 20_000) 
+  upper = max - min
+  val = min + rand*upper
+  self.freq.start = val
+end
+
+# random frequencies in range.
+def rand_freq_both(min = 12, max = 20_000)  
+  upper = max - min
+
+  rand_freq min, max
+  val = min + rand*upper # final val
+  self.set_freq_final val, false
+  self.freq.rand_exp
+#  puts "freq.start #{freq.start}"
+#  puts "freq.f #{freq.final}"
+#  puts "freq.x #{freq.exp}"
+end
+
+#is_relative:: false for setting it absolute
+def set_freq_final fq, is_relative=true
+  self.freq.final = is_relative ? fq : fq - freq.start
+end
+
+#is_relative:: false for setting it absolute
+def set_amp_final val, is_relative=true
+  self.amp.final = is_relative ? val : val - amp.start
+end
+
 # set saturation for both start and end
 def saturation= val
   wave.saturation= val
@@ -30,6 +112,10 @@ def saturations
 end
 def detail
   wave.detail
+end
+def detail= val
+  detail.start = val
+  detail.final = val
 end
 # returns a buffer with a chord (collection of Tone whos collective amplitude equals
 # the amplitude set in tone) in #wd. one tone on each element
@@ -98,12 +184,6 @@ def out
   end
   data.fit_to buffer_len
   data
-end
-
-# setting it absolute
-def set_freq_final_no_relative(final)
-  dif=final - freq.start
-  freq.final=dif
 end
 
 # set #freq based off a Note

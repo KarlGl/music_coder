@@ -15,6 +15,10 @@ def initialize(start=nil,final=nil,exp=0)
   @final = final
   @exp = exp
 end
+# randomize the exp with good values.
+def rand_exp below_linear =[true,false].sample
+  self.exp = below_linear ? 0.1 + 0.9 * rand : 1+rand(20)
+end
 # set #final to a percentage of start
 def %(percent)
   self.final = start.to_f*(percent/100.0)

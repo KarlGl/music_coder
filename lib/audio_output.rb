@@ -23,7 +23,7 @@ class AudioOutput
     log "phase 1 complete.", 2
   end
   def make_audio_file
-    log "phase 2 of 2: merging all tmp files into #{App::EXT} file. == #{App.time_since}", 2
+    log "phase 2 of 2: merging all tmp files into #{App::EXT} file. secs:#{App.time_since}", 2
     frames_index = 0
     len = 0 
     # get max len
@@ -61,6 +61,7 @@ class AudioOutput
         end
         log "CHUNK_@#{frames_index} asked for #{jump}.  total: #{len}", 4
         values = filelist.root_get_value(frames_index,jump)#, jump)+
+        
         # if values.count==0
         #   puts "VALUES RETURNED 0"
         #   frames_index = len # end this shit
@@ -73,7 +74,7 @@ class AudioOutput
         # raise " couldn't find a value... fuck." if found_val.nil?
         # print percent
         frames_index += values.count
-        App.logger.print_loading_bar(frames_index, len, percent_complete)
+        App.logger.print_loading_bar(frames_index, len, percent_complete, 50)
         self.percent_complete = ((frames_index.to_f/len)*100)
         # values=nil
         # GC.start
@@ -100,11 +101,13 @@ class AudioOutput
   end
   def print_tail_info total_frames
     time_taken = App.time_since
-    log 'wrote file: ' + outfile, 1
+    log 'wrote file: ' + outfile, 2
     log 'seconds: ' + (total_frames.to_f / Composer.samplerate).round(2).to_s +
      " (frames: #{(total_frames/1000).round},000)", 2
     log 'time taken: ' + time_taken.round(2).to_s + 
      " seconds (fps: #{(total_frames/time_taken/1000).round()},000)", 2
+    #end the very last line 
+    puts ""
   end
 
 end#class

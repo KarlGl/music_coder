@@ -12,7 +12,7 @@ class FileList
   # delays of children
   attr_accessor :filelist_delays
   # I want each child in the fileslist to fill len frames from my start
-  attr_accessor :child_len, :mark_of_death
+  attr_accessor :child_len, :mark_of_death, :to_del
   def initialize()
     @files = []
     @loaded_file_index = nil
@@ -22,6 +22,7 @@ class FileList
     @file_content_lens=[]
     @loaded_file_data = nil
     @mark_of_death = false
+    @to_del=[]
   end
 
   def root_get_value(index,size=1)
@@ -55,35 +56,41 @@ class FileList
     out=[]
     fl=filelists[i]
     App.checks+=1
-    delay = filelist_delays[i]
+    delay = filelist_delays[i]          
+
     # delay = 0 if delay.nil?
     # puts "deciding if we should go into filelist #{i+1} of #{filelists.count},"+
          # " is #{delay} <= #{index} ? "
 #        puts "child len #{@child_len}"
     needed_until_in = delay - index
+#     puts "needed till in #{needed_until_in}"
     if needed_until_in <= 0
-#          puts "child #{i}"# #{index-delay}"
+      
       if fl.mark_of_death
 #            puts "old count: #{filelists.count}"
         # fl.loaded_file_data=nil
         # GC.start
-        self.filelists.delete_at i
-        self.filelist_delays.delete_at i
-#            puts "#{i} is dead! new count: #{filelists.count}"
+        self.to_del << i
+#        puts "#{i} is dead! new count: #{filelists.count}"
       else
         # normal result
         result =fl.get_value(index-delay,size)
-#             puts "normal #{result.count}"
+        
         out= result
       end
     else 
        spoof_req_len = size - needed_until_in
+#       puts "checking if we can spoof, next move is #{size} and we will be in in #{needed_until_in}."
        if spoof_req_len > 0
+#          puts "checking buggy dude spoofed!! #{index}"
+         
          # Read a smaller chunk in the futre that will be missed if we increment by size.
          index_to_get_in = needed_until_in + index
          delay_on_future_chunk = Array.new(needed_until_in, 0)
          future_chunk = fl.get_value(index_to_get_in-delay, spoof_req_len)
 #             puts future_chunk.count
+
+#          puts "spoofing at #{index} for #{delay} and got #{future_chunk.count} results."
          combo = [] + delay_on_future_chunk + future_chunk
 #             puts combo.count
          out= combo # with resizing, but will be chunk len anyway.
@@ -109,8 +116,13 @@ class FileList
         self.mark_of_death = true
         return []
     end
-    filelists.each_with_index do |fl,i|
+    self.to_del = []
+    filelists.count.times do |i|
       out.add_e lookup_child(index,size,i)
+    end
+    self.to_del.each do |i| 
+      self.filelist_delays.delete_at i 
+      self.filelists.delete_at i 
     end
     out
   end

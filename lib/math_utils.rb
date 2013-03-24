@@ -4,6 +4,7 @@ class << self
 end
 # golden ratio
 self::GR = 1.61803398875 unless const_defined?(:GR)
+self::GRI = 0.61803398875 unless const_defined?(:GRI)
 
 #outputs 0 to 1 increasing by the factor
 #detail:: number of times to apply division. 1 to inf

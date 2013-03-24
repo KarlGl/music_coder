@@ -72,16 +72,21 @@ end
     files=FileList.new
     raise "forgot to put a length of this sound dist" if len.nil?
     log "Warning: one of your sound distributions have no hits. on purpose? ", 3 if hits.empty?
-    hits.each_with_index do |delay,i|
-      delay_in_frames= (delay*len).round
+    hits.each_with_index do |delay, i|
+      delay_in_frames = (delay *len).round
       into=(i+1).to_f/hits.count
       snd.each do |sn| 
         # puts "another snd dist "
         files.addlist sn.render(into), delay_in_frames
       end
-      tss.each {|sn| files.addlist sn.render(into), delay_in_frames} 
-      App.done += 1 if !tss.empty?
-      App.logger.print_loading_bar(App.done, App.total)
+      tss.each do |sn| 
+        files.addlist sn.render(into), delay_in_frames
+      end
+#      puts "#{ App.done} #{App.total}"
+      if !tss.empty?
+        App.done += 1 
+        App.logger.print_loading_bar(App.done, App.total, nil, 0, 50)
+      end
     end
     files.child_len = (len)
     files

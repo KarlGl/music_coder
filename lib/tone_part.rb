@@ -1,21 +1,27 @@
-# one tone or two tones that can be morphed between eachother
+# one or two Tone that can be morphed between eachother
 class TonePart
-#Fader
+#Fader of Tone
 attr_accessor :tones
 attr_accessor :max_frames
 attr_accessor :tone_single
 attr_accessor :tone_count
-def initialize(m=0,t1=Tone.new,t2=Tone.new)
-  @tones = Fader.new(t1,t2,0)
-  @max_frames = m
-  self.frames = m
+def initialize(m=0,t1=Tone.new)
   @tone_count = 1
   @tone_single = t1
+  @tones = Fader.new(t1,nil,0)
+  @max_frames = m
+  self.frames = m
 end
 
 def tone i=0
   return tone_single if tone_count == 1
   i==1 ? @tones.final : @tones.start
+end
+
+def two_tones
+  self.tone_count = 2
+  tones.start = tone_single
+  tones.final = tone_single.deep_copy
 end
 
 # set #max_frames and frames on each Tone if 0.
@@ -64,6 +70,12 @@ def amp_mult(factor)
     tone(1).amp.start *= factor
     tone(1).amp.final *= factor
   end
+end
+
+#perform the block on all tones
+def do_all
+  yield (tone(0))
+  yield (tone(1))
 end
 
 

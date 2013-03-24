@@ -215,3 +215,33 @@ end
 def set_scale sc
    Composer.scale = sc
 end
+# the typical series of commands at the start of a simple new music coder file.
+def start
+  log_level 1
+  clear
+  set_bpm 128
+end
+## return first dist in queue
+#def root
+#  App.out.snddists[0]
+#end
+
+# return random Integer in range with min and max
+def rand_range max, min=0, weight =1
+  rand_p = max - min
+  weight.times {rand_p *= rand}
+  min + rand_p
+end
+
+
+#the main function. output the code block to numbered files.
+#times:: number of times to run the block into a new file
+def music times=1
+  times.times do |i|
+    clear
+    yield 
+    render
+    App.out.outfile= "#{App.outpath}#{App::OUT_SND_DIR}#{i+1}#{App::EXT}"
+    make
+  end
+end

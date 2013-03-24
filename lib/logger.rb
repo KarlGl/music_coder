@@ -2,8 +2,8 @@
 class Logger
   #higher level means more is logged. 
   #0 means silent. 
-  #1 heading and written files.
-  #2 condensed stats and updative info from a process (loading bars)
+  #1 heading and %.
+  #2 condensed stats and written files
   #3 warnings
   #4 memory updates and debug info
   #5 raw data
@@ -21,13 +21,12 @@ class Logger
   end
   
   # a loading bar
-  def print_loading_bar(frames_index, len, percent_complete=nil)
+  def print_loading_bar(frames_index, len, percent_complete=nil, skipped_percent= 0, max= 100)
     percent = ((frames_index.to_f/len)*100).round(4)
     percent = percent.round if !percent_complete.nil?
-    # puts "percent #{percent}"
-    # puts "fun percent_complete #{percent_complete}"
-    if level > 1 && (percent_complete.nil? || (percent_complete.round < percent))  
-      App.logger.print_and_flush("__#{percent}%__")
+    percent = skipped_percent + (percent.to_f/100.0)*(max-skipped_percent)
+    if level > 0 && (percent_complete.nil? || (percent_complete.round < percent))  
+      App.logger.print_and_flush(" #{percent.round}% ")
     end
     percent
   end
