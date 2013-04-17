@@ -239,7 +239,7 @@ end
 def music times=1
   times.times do |i|
     clear
-    yield 
+    yield (i)
     render
     App.out.outfile= "#{App.outpath}#{App::OUT_SND_DIR}#{i+1}#{App::EXT}"
     make

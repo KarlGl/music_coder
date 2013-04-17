@@ -32,8 +32,8 @@ class Dist < Api
       pos_num = scale_notes.count * oran #possible
       ind = (pos_num * weight).round
       oct_ind =  min_oc + ind / scale_notes.count
-      log "drum notes #{ind % scale_notes.count} #{oct_ind}, weight #{weight}", 3
       freq = Note.new(scale_notes[ind % scale_notes.count], oct_ind).freq
+      log "drum notes #{ind % scale_notes.count} #{oct_ind} f=#{freq}, weight #{weight}", 3
       flay.drumify freq, amp/layers/2, f_range, tone_num #test
       
     end
@@ -55,6 +55,7 @@ class Dist < Api
   #assumes an already existing Snd and HitSq, just makes the Snd more like a percussive instrument
   def drumify freq, amp, f_range, tone_num
     random_sound(freq, f_range, tone_num, amp)
+    #fade last tone
     snd.toneseq.toneparts.last.do_all {|tone| 
       tone.fade
       tone.amp.rand_exp true #below linear
@@ -71,7 +72,9 @@ class Dist < Api
       self << Snd.new
       delay = rand*max_delay
       1.times {delay*=rand}
-      snd.toneseq.random(rand(parts).to_i, [true,false].sample, delay, amp, root_f+f_range*root_f, root_f-f_range*root_f)
+      parts = (rand * parts).round
+      log "parts: #{parts}" ,3 
+      snd.toneseq.random(parts, [true,false].sample, delay, amp, root_f+f_range*root_f, root_f-f_range*root_f)
       snd.toneseq.toneparts.each do |tp|
 #        tp.do_all {|tone| tone.set_freq root_f}
 #        range = root_f * f_range

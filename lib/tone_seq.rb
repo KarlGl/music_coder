@@ -41,6 +41,7 @@ class ToneSeq
   #random everything
   def random extra_detail = 5, even = false, delay=0, start_amp = 0.5, 
              max_f = 2000, min_f = 120, max_sat=0.8, min_detail=20
+    min_f = 0 if min_f < 0
     make(extra_detail) # sets the lens evenly.
     frames_left = self.frames - self.frames.to_f*delay #- extra_detail+1 #minus a little so it must have 1 frame
     toneparts.count.times do |i|
